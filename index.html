@@ -331,8 +331,7 @@ function render(){
     const lm=G.last&&(G.last.from===i||G.last.to===i);
     h+=`<div data-i="${i}" class="aspect-square bg-surface-container flex items-center justify-center relative cursor-pointer">${lm?'<div class="absolute inset-0 bg-secondary/10 pointer-events-none"></div>':''}${b[i]?pieceHTML(b[i],i===cur):''}</div>`;
   }
-  const gridEl = $('grid');
-  if(gridEl) gridEl.innerHTML=h;
+  $('grid').innerHTML=h;
   $('turno').textContent=`Partida Clásica • Turno ${Math.floor(G.ply/2)+1}`;
   $('ai-caps').innerHTML=miniDiscs(G.capB,false);$('ai-n').textContent=`Capturas (${G.capB})`;
   $('pl-caps').innerHTML=miniDiscs(G.capW,true);$('pl-n').textContent=`Capturas (${G.capW})`;
@@ -383,32 +382,21 @@ function onClick(e){
   if(!cand.length){msg(G.legalM[0]&&G.legalM[0].caps.length?'Captura obligatoria':'Movimiento no válido');return;}
   G.taken.push([r,c]);G.step++;
   const done=cand.find(m=>m.path.length-1===G.step);
-  if(done){G.hist.pop(); // Evitamos duplicar historial en pasos intermedios
-         G.hist.push(snap());finish(done);}else render();
+  if(done){G.hist.push(snap());finish(done);}else render();
 }
-function newGame(){
-  G=fresh();
-  $('ov').classList.add('hidden');
-  $('ov').classList.remove('flex');$('pause').lastElementChild.textContent='Pausa';
-  render();
-  clock();
-}
-// Aseguramos que el DOM esté cargado antes de enganchar eventos e iniciar
-document.addEventListener('DOMContentLoaded', () => {
-  $('grid').addEventListener('click', onClick);
-  $('undo').onclick=()=>{     if(G.busy\vert{}\vert{}G.over\vert{}\vert{}!G.hist.length)return;     const s=G.hist.pop();Object.assign(G,s,{turn:1,sel:null,step:0,taken:[],legalM:legal(s.b,1)});render();clock();   };$('pause').onclick=()=>{
-    if(G.over)return;G.paused=!G.paused;
-    $('pause').lastElementChild.textContent=G.paused?'Reanudar':'Pausa';
-    $('pause').firstElementChild.textContent=G.paused?'play_arrow':'pause';
-    $('board').style.opacity=G.paused?0.35:1;
-  };
-  $('draw').onclick=()=>{
-    if(G.over||G.busy||G.paused||G.turn!==1)return;
-    if(evalB(G.b)>=-100)end('Tablas','La máquina aceptó las tablas.');
-    else{$('ai-st').textContent='Tablas rechazadas';setTimeout(render,1800);}   };$('again').onclick=newGame;
-  setInterval(()=>{if(!G.paused&&!G.over){G.secs++;clock();}},1000);
-  newGame();
-});
+function newGame(){G=fresh();$('ov').classList.add('hidden');$('ov').classList.remove('flex');$('pause').lastElementChild.textContent='Pausa';render();clock();}$('grid').addEventListener('click',onClick);
+$('undo').onclick=()=>{   if(G.busy\vert{}\vert{}G.over\vert{}\vert{}!G.hist.length)return;   const s=G.hist.pop();Object.assign(G,s,{turn:1,sel:null,step:0,taken:[],legalM:legal(s.b,1)});render();clock(); };$('pause').onclick=()=>{
+  if(G.over)return;G.paused=!G.paused;
+  $('pause').lastElementChild.textContent=G.paused?'Reanudar':'Pausa';
+  $('pause').firstElementChild.textContent=G.paused?'play_arrow':'pause';
+  $('board').style.opacity=G.paused?0.35:1;
+};
+$('draw').onclick=()=>{
+  if(G.over||G.busy||G.paused||G.turn!==1)return;
+  if(evalB(G.b)>=-100)end('Tablas','La máquina aceptó las tablas.');
+  else{$('ai-st').textContent='Tablas rechazadas';setTimeout(render,1800);} };$('again').onclick=newGame;
+setInterval(()=>{if(!G.paused&&!G.over){G.secs++;clock();}},1000);
+newGame();
 /*ENDUI*/
 </script>
 </body>
